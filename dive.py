@@ -16,6 +16,7 @@ class Dive:
         else:
             self.aim += command.amount if command.direction == 'down' else -(command.amount)
 
+    # part one solution
     def _run_command(self, command):
         if command.direction == 'forward':
             self.horizontal += command.amount
