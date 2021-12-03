@@ -11,6 +11,6 @@ def count_increases_sliding(depths):
     return counter
 
 if __name__ == '__main__':
-    with open("input-01.txt") as f:
-        args = [int(x) for x in f.readlines()]
+    with open("input-01.txt") as file:
+        args = [int(x) for x in file.readlines()]
         print(count_increases_sliding(args))
