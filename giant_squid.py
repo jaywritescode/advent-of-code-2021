@@ -33,7 +33,6 @@ class BingoBoard:
         rows = iter(self.squares[5 * i:5 * (i + 1)] for i in range(5))
         cols = iter(self.squares[i::5] for i in range(5))
         return chain(rows, cols)
-        # return chain(rows, cols, [self.squares[::6], self.squares[4:21:4]])
 
     @staticmethod
     def line_is_complete(line):
