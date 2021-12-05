@@ -28,6 +28,7 @@ class BingoSquare:
 class BingoBoard:
     def __init__(self, numbers):
         self.squares = [BingoSquare(i) for i in numbers]
+        self.has_won = False
 
     def lines(self):
         rows = iter(self.squares[5 * i:5 * (i + 1)] for i in range(5))
@@ -69,7 +70,10 @@ class GiantSquid:
             BingoSquare.get(number).mark()
             for board in self.boards:
                 if board.is_complete(number):
-                    return number * board.get_unmarked_sum()
+                    board.has_won = True
+
+                    if all(b.has_won for b in self.boards):
+                        return number * board.get_unmarked_sum()
 
 
 if __name__ == '__main__':
