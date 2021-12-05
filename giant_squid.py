@@ -81,5 +81,3 @@ if __name__ == '__main__':
         puzzle = [line.strip() for line in file.readlines()]
         g = GiantSquid(puzzle)
         print(g.solve())
-
-# 25497 too high
