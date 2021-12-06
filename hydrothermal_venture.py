@@ -1,6 +1,6 @@
 #%%
 from collections import namedtuple
-from itertools import groupby, product
+from itertools import groupby, combinations, product
 import re
 
 Point = namedtuple('Point', ['x', 'y'])
@@ -139,20 +139,20 @@ class HydrothermalVenture:
             group = list(g)
             if len(group) == 1:
                 continue
-            if len(group) > 2:
-                raise ValueError
-            ranges = [Range(member.p1.x, member.p2.x) for member in group]
-            total += Range.intersect(*ranges)
+            for (line1, line2) in combinations(group, 2):
+                r1 = Range(line1.p1.x, line1.p2.x)
+                r2 = Range(line2.p1.x, line2.p2.x)
+                total += Range.intersect(r1, r2)
 
         #overlapping vertical lines must have the same x-coordinate
         for _, g in groupby(vertical_lines, lambda line: line.p1.x):
             group = list(g)
             if len(group) == 1:
                 continue
-            if len(group) > 2:
-                raise ValueError
-            ranges = [Range(member.p1.y, member.p2.y) for member in group]
-            total += Range.intersect(*ranges)
+            for (line1, line2) in combinations(group, 2):
+                r1 = Range(line1.p1.y, line1.p2.y)
+                r2 = Range(line2.p1.y, line2.p2.y)
+                total += Range.intersect(r1, r2)
 
         # perpendicular lines
         for (horiz, vert) in product(horizontal_lines, vertical_lines):
@@ -175,13 +175,13 @@ test = """0,9 -> 5,9
 
 
 if __name__ == '__main__':
-    h = HydrothermalVenture(Line.parse(line) for line in test).solve()
-    print(h)
+    # h = HydrothermalVenture(Line.parse(line) for line in test)
+    # print(h.solve())
 
-    # lines = [Line.parse(n) for n in test]
-    # h = HydrothermalVenture(lines)
-    # print(h.lines)
-# %%
+    with open('input-05.txt') as file:
+        lines = [Line.parse(line) for line in file.readlines()]
+        h = HydrothermalVenture(lines)
+        print(h.solve())
 
-# let's see if any two horizontal lines share the same y-coordinates
-# and if any vertical lines share the same x-coordinates
+
+# 7398 is too high
