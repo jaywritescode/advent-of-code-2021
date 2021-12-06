@@ -1,5 +1,5 @@
 #%%
-from collections import namedtuple
+from collections import Counter, namedtuple
 from itertools import groupby, combinations, product
 import re
 
@@ -125,8 +125,26 @@ def lines_overlap_orthogonal(line1, line2):
 
 #%%
 class HydrothermalVenture:
+    from collections import Counter
+
     def __init__(self, lines):
         self.lines = list(filter(lambda x: x.is_horizontal() or x.is_vertical(), lines))
+
+    def solve_b(self):
+        counter = Counter()
+        for line in self.lines:
+            if line.is_horizontal():
+                left = min(line.p1.x, line.p2.x)
+                right = max(line.p1.x, line.p2.x)
+                for x in range(left, right+1):
+                    counter[(x, line.p1.y)] += 1
+            else:
+                bottom = min(line.p1.y, line.p2.y)
+                top = max(line.p1.y, line.p2.y)
+                for y in range(bottom, top+1):
+                    counter[(line.p1.x, y)] += 1
+
+        return len(list(filter(lambda x: x >= 2, counter.values())))
 
     def solve(self):
         total = 0
@@ -176,12 +194,12 @@ test = """0,9 -> 5,9
 
 if __name__ == '__main__':
     # h = HydrothermalVenture(Line.parse(line) for line in test)
-    # print(h.solve())
+    # print(h.solve_b())
 
     with open('input-05.txt') as file:
         lines = [Line.parse(line) for line in file.readlines()]
         h = HydrothermalVenture(lines)
-        print(h.solve())
+        print(h.solve_b())
 
 
 # 7398 is too high
