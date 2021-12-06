@@ -8,10 +8,9 @@
 
 (defun sonar-sweep-2 (input)
   ;; Is there a simpler way to write this mapcar?
-  (let ((window-sums (mapcar #'(lambda (tuple) (reduce #'+ tuple))
-                             (triples problem-input))))
+  (let ((window-sums (mapcar #'(lambda (tuple) (reduce #'+ tuple)) (triples input))))
     (count t (map 'list #'< window-sums (rest window-sums)))))
 
 ;;; good to remember
-(defvar problem-input
+(defvar puzzle-input
   (mapcar #'parse-integer (uiop:read-file-lines "input-01.txt")))
