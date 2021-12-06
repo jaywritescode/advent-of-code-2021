@@ -1,4 +1,3 @@
-#%%
 def lanternfish_naive(start):
     state = start[:]
     for _ in range(80):
@@ -11,7 +10,6 @@ def lanternfish_naive(start):
                 state[idx] = timer - 1
         state.extend([8] * spawned)
     return len(state)
-#%%
 
 from collections import Counter
 
@@ -33,4 +31,3 @@ if __name__ == '__main__':
     with open('input-06.txt') as file:
         puzzle = [int(x) for x in file.readline().split(',')]
         print(lanternfish(puzzle))
-# %%
