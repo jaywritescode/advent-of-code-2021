@@ -12,6 +12,10 @@ class Line:
         self.p1 = p1
         self.p2 = p2
 
+        self._next = p1
+        self._x_iter_dir = 0 if self.is_vertical() else (1 if self.p2.x > self.p1.x else -1)
+        self._y_iter_dir = 0 if self.is_horizontal() else (1 if self.p2.y > self.p1.y else -1)
+
     def points(self):
         return [self.p1, self.p2]
 
@@ -20,6 +24,21 @@ class Line:
 
     def is_horizontal(self):
         return self.p1.y == self.p2.y
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._next is None:
+            raise StopIteration
+
+        p = self._next
+        if p == self.p2:
+            self._next = None
+        else:
+            self._next = Point(self._next.x + self._x_iter_dir, self._next.y + self._y_iter_dir)
+
+        return p
 
     def length(self):
         if self.is_vertical():
@@ -63,21 +82,13 @@ class HydrothermalVenture:
     from collections import Counter
 
     def __init__(self, lines):
-        self.lines = list(filter(lambda x: x.is_horizontal() or x.is_vertical(), lines))
+        self.lines = lines
 
-    def solve_b(self):
+    def solve(self):
         counter = Counter()
         for line in self.lines:
-            if line.is_horizontal():
-                left = min(line.p1.x, line.p2.x)
-                right = max(line.p1.x, line.p2.x)
-                for x in range(left, right+1):
-                    counter[(x, line.p1.y)] += 1
-            else:
-                bottom = min(line.p1.y, line.p2.y)
-                top = max(line.p1.y, line.p2.y)
-                for y in range(bottom, top+1):
-                    counter[(line.p1.x, y)] += 1
+            for point in iter(line):
+                counter[point] += 1
 
         return len(list(filter(lambda x: x >= 2, counter.values())))
 
@@ -97,13 +108,13 @@ test = """0,9 -> 5,9
 
 
 if __name__ == '__main__':
-    # h = HydrothermalVenture(Line.parse(line) for line in test)
-    # print(h.solve_b())
+    h = HydrothermalVenture(Line.parse(line) for line in test)
+    print(h.solve())
 
-    with open('input-05.txt') as file:
-        lines = [Line.parse(line) for line in file.readlines()]
-        h = HydrothermalVenture(lines)
-        print(h.solve_b())
+    # with open('input-05.txt') as file:
+    #     lines = [Line.parse(line) for line in file.readlines()]
+    #     h = HydrothermalVenture(lines)
+    #     print(h.solve_b())
 
 
 # 7398 is too high
