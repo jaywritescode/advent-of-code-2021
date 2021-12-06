@@ -1,6 +1,6 @@
 #%%
 from collections import namedtuple
-from itertools import groupby
+from itertools import groupby, product
 import re
 
 Point = namedtuple('Point', ['x', 'y'])
@@ -23,26 +23,26 @@ class Line:
 
     def length(self):
         if self.is_vertical():
-            return self.get_top_point() - self.get_bottom_point()
+            return self.top() - self.bottom()
         else:
-            return self.get_right_point() - self.get_left_point()
+            return self.right() - self.left()
 
-    def get_left_point(self):
+    def left(self):
         if self.is_vertical():
             return None
         return list(sorted(self.points(), key=lambda p: p.x))[0]
 
-    def get_right_point(self):
+    def right(self):
         if self.is_vertical():
             return None
         return list(sorted(self.points(), key=lambda p: p.x))[-1]
 
-    def get_top_point(self):
+    def top(self):
         if self.is_horizontal():
             return None
         return list(sorted(self.points(), key=lambda p: p.y))[-1]
 
-    def get_bottom_point(self):
+    def bottom(self):
         if self.is_horizontal():
             return None
         return list(sorted(self.points(), key=lambda p: p.y))[0]
@@ -55,6 +55,36 @@ class Line:
         match = regex.match(line)
         (x1, y1, x2, y2) = match.groups()
         return Line(Point(int(x1), int(y1)), Point(int(x2), int(y2)))
+
+
+class Range:
+    """
+    Represents a subset of the discrete number line.
+    """
+    def __init__(self, p1, p2):
+        self.min = min(p1, p2)
+        self.max = max(p1, p2)
+
+    def amount(self):
+        """
+        The amount of the number line covered by this range. Since we're looking
+        at discrete chunks of the number line, we want `amount([x,x]) == 1`.
+        """
+        return self.max - self.min + 1
+
+    def intersect(self, other):
+        # disjoint
+        if self.max < other.min or other.max < self.min:
+            return 0
+        # one is a subset of the other
+        if self.min <= other.min and self.max >= other.max:
+            return other.amount()
+        if other.min <= self.min and other.max >= self.max:
+            return self.amount()
+        return min(self.max, other.max) - max(self.min, other.min) + 1
+
+    def __repr__(self):
+        return f"[{self.min},{self.max}]"
 
 
 def overlap(line1, line2):
@@ -84,9 +114,6 @@ def lines_overlap_vertical(line1, line2):
         return other.length()
     return bottommost.get_top_point() - other.get_bottom_point() + 1
 
-
-
-#%%
 def lines_overlap_orthogonal(line1, line2):
     horizontal = line1 if line1.is_horizontal() else line2
     vertical = line1 if line1.is_vertical() else line2
@@ -104,20 +131,35 @@ class HydrothermalVenture:
     def solve(self):
         total = 0
 
-        horizontal_lines = sorted(filter(lambda L: L.is_horizontal(), self.lines), key=lambda L: L.p1.y)
-        vertical_lines = sorted(filter(lambda L: L.is_vertical(), self.lines), key=lambda L: L.p1.x)
+        horizontal_lines = list(sorted(filter(lambda L: L.is_horizontal(), self.lines), key=lambda L: L.p1.y))
+        vertical_lines = list(sorted(filter(lambda L: L.is_vertical(), self.lines), key=lambda L: L.p1.x))
 
-        # overlapping horizontal lines
+        # overlapping horizontal lines must have the same y-coordinate
         for _, g in groupby(horizontal_lines, lambda line: line.p1.y):
             group = list(g)
             if len(group) == 1:
                 continue
             if len(group) > 2:
                 raise ValueError
-            total += overlap(*group)
+            ranges = [Range(member.p1.x, member.p2.x) for member in group]
+            total += Range.intersect(*ranges)
 
+        #overlapping vertical lines must have the same x-coordinate
+        for _, g in groupby(vertical_lines, lambda line: line.p1.x):
+            group = list(g)
+            if len(group) == 1:
+                continue
+            if len(group) > 2:
+                raise ValueError
+            ranges = [Range(member.p1.y, member.p2.y) for member in group]
+            total += Range.intersect(*ranges)
 
-        print("hello")
+        # perpendicular lines
+        for (horiz, vert) in product(horizontal_lines, vertical_lines):
+            if horiz.left().x <= vert.p1.x <= horiz.right().x and vert.bottom().y <= horiz.p1.y <= vert.top().y:
+                total += 1
+
+        return total
 
 
 test = """0,9 -> 5,9
@@ -134,7 +176,7 @@ test = """0,9 -> 5,9
 
 if __name__ == '__main__':
     h = HydrothermalVenture(Line.parse(line) for line in test).solve()
-
+    print(h)
 
     # lines = [Line.parse(n) for n in test]
     # h = HydrothermalVenture(lines)
