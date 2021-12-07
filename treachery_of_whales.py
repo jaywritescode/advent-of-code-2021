@@ -1,15 +1,14 @@
+def fuel_to_position(current_position, target):
+    n = abs(current_position - target)
+    return n * (n + 1) // 2
 
-
-#%%
-def fuel_to_position(positions, target):
-    return sum(abs(pos - target) for pos in positions)
-
+def total_fuel_to_position(positions, target):
+    return sum(fuel_to_position(pos, target) for pos in positions)
 
 def solve(positions):
-    return min(fuel_to_position(positions, x) for x in range(max(positions) + 1))
+    return min(total_fuel_to_position(positions, x) for x in range(max(positions) + 1))
 
 
-#%%
 test = [int(x) for x in "16,1,2,0,4,2,7,1,2,14".split(',')]
 
 if __name__ == '__main__':
