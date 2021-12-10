@@ -31,7 +31,6 @@ class SmokeBasin:
         return sum(self.height_map[lp] + 1 for lp in self.low_points())
 
 
-
 test = """2199943210
 3987894921
 9856789892
@@ -40,5 +39,6 @@ test = """2199943210
 
 
 if __name__ == '__main__':
-    puz = SmokeBasin(test)
-    print(puz.solve())
+    with open('input-09.txt') as file:
+        puz = SmokeBasin(line.strip() for line in file.readlines())
+        print(puz.solve())
