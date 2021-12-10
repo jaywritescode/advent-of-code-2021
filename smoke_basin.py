@@ -18,6 +18,9 @@ class SmokeBasin:
             Coordinate(row, column - 1),
             Coordinate(row, column + 1)]))
 
+    def find_basin(self, coordinate):
+        pass
+
     def low_points(self):
         low_points = []
         for coordinate, height in self.height_map.items():
