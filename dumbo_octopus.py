@@ -56,9 +56,13 @@ class DumboOctopus:
         self.step += 1
         return len(flashed)
 
-    def solve(self):
+    def count_flashes(self):
         return sum(self.next_step() for x in range(100))
 
+    def solve(self):
+        while True:
+            if self.next_step() == 100:
+                return self.step
 
 
 test = """5483143223
