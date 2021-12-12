@@ -21,7 +21,7 @@ points = {
 
 def is_corrupted(line):
     stack = []
-    for char in line:
+    for char in line.strip():
         if char in ['(', '[', '{', '<']:
             stack.append(char)
         else:
@@ -32,7 +32,7 @@ def is_corrupted(line):
 
 def complete_line(line):
     stack = []
-    for char in line:
+    for char in line.strip():
         if char in ['(', '[', '{', '<']:
             stack.append(char)
         else:
@@ -44,7 +44,6 @@ def complete_line(line):
         total += points[stack.pop()]
 
     return total
-
 
 
 test = """[({(<(())[]>[[{[]{<()<>>
@@ -61,9 +60,8 @@ test = [x.strip() for x in test]
 
 
 if __name__ == '__main__':
-    f = [(line, complete_line(line)) for line in test if is_corrupted(line) != 0]
-    print(f)
+    from statistics import median
 
-
-    # with open('input-10.txt') as file:
-    #     print(sum(is_corrupted(i.strip()) for i in file.readlines()))
+    with open('input-10.txt') as file:
+        m = median([complete_line(line) for line in file if is_corrupted(line) == 0])
+        print(m)
