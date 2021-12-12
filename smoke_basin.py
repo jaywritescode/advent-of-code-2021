@@ -19,7 +19,17 @@ class SmokeBasin:
             Coordinate(row, column + 1)]))
 
     def find_basin(self, coordinate):
-        pass
+        basin = set()
+        queue = [coordinate]
+        while queue:
+            c, queue = queue[0], queue[1:]
+            basin.add(c)
+
+            for n in self.neighbors(c):
+                if n not in basin and self.height_map[n] < 9:
+                    queue.append(n)
+
+        return basin
 
     def low_points(self):
         low_points = []
@@ -30,8 +40,13 @@ class SmokeBasin:
         return low_points
 
     def solve(self):
-        f = self.low_points()
-        return sum(self.height_map[lp] + 1 for lp in self.low_points())
+        basins = [self.find_basin(lp) for lp in self.low_points()]
+        result = 1
+
+        for basin in sorted(basins, key=lambda x: len(x), reverse=True)[:3]:
+            result *= len(basin)
+
+        return result
 
 
 test = """2199943210
