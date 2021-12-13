@@ -1,4 +1,4 @@
-from collections import deque, namedtuple
+from collections import Counter, deque
 
 
 class Cave:
@@ -31,8 +31,22 @@ class PassagePathing:
         cave1.neighbors.add(cave2)
         cave2.neighbors.add(cave1)
 
+
     def solve(self):
         paths = []
+
+        def can_visit(cave, path_so_far):
+            if cave.name == 'start':
+                return False
+            if cave.name == 'end':
+                return True
+            if cave.name.isupper():
+                return True
+
+            c = Counter(x.name for x in path_so_far if x.name.islower())
+            if 2 in c.values():
+                return c[cave.name] < 1
+            return True
 
         paths_to_expolore = deque([[self.start]])
         while paths_to_expolore:
@@ -40,7 +54,7 @@ class PassagePathing:
             current = e[-1]
 
             for n in current.neighbors:
-                if n.name.islower() and any(f.name == n.name for f in e):
+                if n.name.islower() and can_visit(n, e):
                     # don't revisit a small cave
                     continue
                 
@@ -76,5 +90,5 @@ kj-dc""".splitlines()
 
 
 if __name__ == '__main__':
-    p = PassagePathing(test2)
+    p = PassagePathing(test1)
     print(p.solve())
