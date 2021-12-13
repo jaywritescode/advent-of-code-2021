@@ -83,11 +83,26 @@ fold along x=5"""
 
 #%%
 if __name__ == '__main__':
-    with open('input-13.txt') as file:
-        puzzle = iter(line.strip() for line in file.readlines())
-        points = {Point._make(int(x) for x in v.split(',')) for v in takewhile(lambda x: x, puzzle)}
-        folds = [f.strip() for f in dropwhile(lambda x: not x, puzzle)]
+    # with open('input-13.txt') as file:
+    #     puzzle = iter(line.strip() for line in file.readlines())
+    #     points = {Point._make(int(x) for x in v.split(',')) for v in takewhile(lambda x: x, puzzle)}
+    #     folds = [f.strip() for f in dropwhile(lambda x: not x, puzzle)]
 
-        print(TransparentOrigami(points, folds).solve())
+    #     print(TransparentOrigami(points, folds).solve())
+
+    puzzle = iter(line.strip() for line in test.splitlines())
+    points = {Point._make(int(x) for x in v.split(',')) for v in takewhile(lambda x: x, puzzle)}
+    folds = [f.strip() for f in dropwhile(lambda x: not x, puzzle)]
+
+    t = TransparentOrigami(points, folds)
+    print(t)
+
+    t.do_next_fold()
+    print(t)
+
+    t.do_next_fold()
+    print(t)
+
+    print(len(t.points))
 
 # 1125 is too high
