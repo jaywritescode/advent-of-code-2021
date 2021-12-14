@@ -58,16 +58,13 @@ CN -> C""".splitlines()
 
 
 if __name__ == '__main__':
-    i = iter(test)
-    template = first(i)
-    
-    rules = dict()
-    for line in dropwhile(lambda x: not x, i):
-        pair, middle = line.split(' -> ')
-        rules[tuple(iter(pair))] = middle
+    with open('input-14.txt') as file:
+        i = (line.strip() for line in file)
+        template = first(i)
 
-    print(template)
-    print(rules)
+        rules = dict()
+        for line in dropwhile(lambda x: not x, i):
+            pair, middle = line.split(' -> ')
+            rules[tuple(iter(pair))] = middle
 
-    e = ExtendedPolymerization(template, rules)
-    print(e.solve())
+        print(ExtendedPolymerization(template, rules).solve())
