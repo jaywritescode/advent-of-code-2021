@@ -13,10 +13,10 @@ def reflect_over_horizontal_fold(point, y):
     return Point(point.x, 2 * y - point.y)
 
 def reflect_over_vertical_fold(point, x):
-    if point.x > x:
+    if point.x < x:
         return point
 
-    return Point(x - point.x - 1, point.y)
+    return Point(2 * x - point.x, point.y)
 
 # %%
 class TransparentOrigami:
