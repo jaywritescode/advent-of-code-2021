@@ -45,9 +45,14 @@ class TransparentOrigami:
 
         self.folds = self.folds[1:]
 
-    def solve(self):
+    def _solve(self):
         self.do_next_fold()
         return len(self.points)
+
+    def solve(self):
+        while self.folds:
+            self.do_next_fold()
+        print(self)
 
     def __str__(self):
         lines = []
@@ -88,21 +93,4 @@ if __name__ == '__main__':
         points = {Point._make(int(x) for x in v.split(',')) for v in takewhile(lambda x: x, puzzle)}
         folds = [f.strip() for f in dropwhile(lambda x: not x, puzzle)]
 
-        print(TransparentOrigami(points, folds).solve())
-
-    # puzzle = iter(line.strip() for line in test.splitlines())
-    # points = {Point._make(int(x) for x in v.split(',')) for v in takewhile(lambda x: x, puzzle)}
-    # folds = [f.strip() for f in dropwhile(lambda x: not x, puzzle)]
-
-    # t = TransparentOrigami(points, folds)
-    # print(t)
-
-    # t.do_next_fold()
-    # print(t)
-
-    # t.do_next_fold()
-    # print(t)
-
-    # print(len(t.points))
-
-# 1125 is too high
+        TransparentOrigami(points, folds).solve()
