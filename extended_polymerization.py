@@ -23,7 +23,8 @@ class ExtendedPolymerization:
         self.step += 1
 
     def solve(self):
-        while self.step < 10:
+        while self.step < 40:
+            print(f"step: {self.step}")
             next(self)
         
         print(len(self.template))
