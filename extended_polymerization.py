@@ -6,7 +6,9 @@ from more_itertools.recipes import pairwise
 
 class ExtendedPolymerization:
     def __init__(self, template, rules):
-        self.template = list(iter(template))
+        self.start = template[0]
+        self.end = template[-1]
+        self.pairs = Counter(''.join(k) for k in pairwise(template))
         self.rules = dict(rules)
         self.step = 0
 
@@ -14,48 +16,31 @@ class ExtendedPolymerization:
         return self
 
     def __next__(self):
-        n = [self.template[0]]
-        for i in pairwise(self.template):
-            n.append(self.rules[i])
-            n.append(i[1])
-
-        self.template = n
+        updated = Counter()
+        for pair, count in self.pairs.items():
+            transform = self.rules[pair]
+            updated[transform[0]] += count
+            updated[transform[1]] += count
+        self.pairs = updated
         self.step += 1
+
+    def count_elements(self):
+        c = Counter()
+        for pair, count in self.pairs.items():
+            c[pair[0]] += count
+            c[pair[1]] += count
+
+        n = Counter({letter: count // 2 for letter, count in c.items()})
+        n[self.start] += 1
+        n[self.end] += 1
+        return n
 
     def solve(self):
         while self.step < 40:
-            print(f"step: {self.step}")
             next(self)
-        
-        print(len(self.template))
-        c = Counter(self.template).most_common()
-        return c[0][1] - c[-1][1]
-        
 
-        
-
-
-
-
-
-test = """NNCB
-
-CH -> B
-HH -> N
-CB -> H
-NH -> C
-HB -> C
-HC -> B
-HN -> C
-NN -> C
-BH -> H
-NC -> B
-NB -> B
-BN -> B
-BB -> N
-BC -> B
-CC -> N
-CN -> C""".splitlines()
+        most_common = self.count_elements().most_common()
+        return most_common[0][1] - most_common[-1][1]
 
 
 if __name__ == '__main__':
@@ -66,6 +51,7 @@ if __name__ == '__main__':
         rules = dict()
         for line in dropwhile(lambda x: not x, i):
             pair, middle = line.split(' -> ')
-            rules[tuple(iter(pair))] = middle
+            rules[pair] = [pair[0] + middle, middle + pair[1]]
 
-        print(ExtendedPolymerization(template, rules).solve())
+        e = ExtendedPolymerization(template, rules)
+        print(e.solve())
