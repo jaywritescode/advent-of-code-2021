@@ -1,20 +1,18 @@
-(ql:quickload "str")
-
 (defun solve-part-1 ()
   (let ((horizontal-pos 0)
         (depth 0))
     (dolist (command (puzzle-input) (* horizontal-pos depth))
-      (break)
-      (multiple-value-bind (direction amount) command
+      (let ((direction (alexandria:assoc-value command :direction))
+            (magnitude (alexandria:assoc-value comamnd :magnitude)))
         (case direction
-          ("forward" (incf horizontal-pos amount))
-          ("down" (incf depth amount))
-          ("up" (decf depth amount)))))))
+          ("forward" (incf horizontal-pos magnitude))
+          ("down" (incf depth magnitude))
+          ("up" (decf depth magnitude)))))))
 
 (defun parse-line (line)
   (let ((command (str:words line)))
-    (pairlis (:direction :magnitude)
-             ((first command) (parse-integer (second command))))))
+    (pairlis '(:direction :magnitude)
+             (list (first command) (parse-integer (second command))))))
 
 (defun puzzle-input ()
   (mapcar #'parse-line (uiop:read-file-lines "input-02.txt")))
