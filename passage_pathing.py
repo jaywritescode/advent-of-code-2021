@@ -1,4 +1,5 @@
-from collections import Counter, deque
+from collections import deque
+from more_itertools import all_unique, last
 
 
 class Cave:
@@ -6,11 +7,14 @@ class Cave:
         self.name = name
         self.neighbors = set()
 
+    def is_big(self):
+        return self.name.isupper()
+
     def __hash__(self):
         return hash(self.name)
 
     def __repr__(self):
-        return f"Cave {self.name}: with neighbors {[x.name for x in self.neighbors]}"
+        return f"{self.name} -> {[x.name for x in self.neighbors]}"
 
 
 class PassagePathing:
@@ -31,64 +35,38 @@ class PassagePathing:
         cave1.neighbors.add(cave2)
         cave2.neighbors.add(cave1)
 
-
     def solve(self):
-        paths = []
+        counter = 0
 
         def can_visit(cave, path_so_far):
             if cave.name == 'start':
                 return False
-            if cave.name == 'end':
-                return True
-            if cave.name.isupper():
+            if cave.is_big():
                 return True
 
-            c = Counter(x.name for x in path_so_far if x.name.islower())
-            if 2 in c.values():
-                return c[cave.name] < 1
-            return True
-
-        paths_to_expolore = deque([[self.start]])
-        while paths_to_expolore:
-            e = paths_to_expolore.popleft()
-            current = e[-1]
-
-            for n in current.neighbors:
-                if n.name.islower() and can_visit(n, e):
-                    # don't revisit a small cave
-                    continue
+            if cave not in path_so_far:
+                return True
                 
-                updated_path = list(e[:])
-                updated_path.append(n)
-                if n.name == 'end':
-                    paths.append(updated_path)
-                    continue
+            return all_unique(filter(lambda cave: not cave.is_big(), path_so_far))
 
-                paths_to_expolore.append(updated_path)
+        paths_to_explore = deque([[self.start]])
+        while paths_to_explore:
+            path = paths_to_explore.popleft()
+            current_cave = last(path)
 
-        return len(paths)
+            if current_cave.name == 'end':
+                counter += 1
+            else:
+                for neighbor in filter(lambda n: can_visit(n, path), current_cave.neighbors):
+                    updated_path = path[:]
+                    updated_path.append(neighbor)
+                    paths_to_explore.append(updated_path)
 
-
-test1 = """start-A
-start-b
-A-c
-A-b
-b-d
-A-end
-b-end""".splitlines()
-
-test2 = """dc-end
-HN-start
-start-kj
-dc-start
-dc-HN
-LN-dc
-HN-end
-kj-sa
-kj-HN
-kj-dc""".splitlines()
+        return counter
 
 
 if __name__ == '__main__':
-    p = PassagePathing(test1)
-    print(p.solve())
+    with open('sample-data/sample-12-b.txt') as file:
+        puzzle = [line.strip() for line in file.readlines()]
+        p = PassagePathing(puzzle)
+        print(p.solve())
