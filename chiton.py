@@ -1,4 +1,6 @@
-import heapq
+from collections import namedtuple
+
+Coordinate = namedtuple('Coordinate', ['row', 'column'])
 
 class Node:
     def __init__(self, name, value):
