@@ -3,11 +3,13 @@ from collections import namedtuple
 Coordinate = namedtuple('Coordinate', ['row', 'column'])
 
 class Node:
-    def __init__(self, name, value):
+    def __init__(self, name, value, graph):
         self.name = name
         self.value = value
+        self.graph = graph
+
         self.min_distance = float('inf')
-        self.neighbors = set()
+        self.neighbors = None
         self.previous = None
 
     def __hash__(self):
@@ -17,8 +19,22 @@ class Node:
         return f"{self.name}: value = {self.value}, min_distance = {self.min_distance}"
 
 class Chiton:
-    def __init__(self, root):
+    def __init__(self, root, nodes):
         self.root = root
+        self.nodes = nodes
+
+    def get_neighbors(self, node):
+        if node.graph is not self:
+            raise
+
+        row, column = node.name
+        if node.neighbors is None:
+            node.neighbors = set()
+            for delta_row, delta_column in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                possible_neighbor_coordinate = Coordinate(row + delta_row, column + delta_column)
+                if possible_neighbor_coordinate in self.nodes:
+                    node.neighbors.add(self.nodes[possible_neighbor_coordinate])
+        return node.neighbors
 
     def dijkstra(self, end_node):
         self.root.min_distance = 0
