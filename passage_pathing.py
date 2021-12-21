@@ -66,7 +66,7 @@ class PassagePathing:
 
 
 if __name__ == '__main__':
-    with open('sample-data/sample-12-b.txt') as file:
+    with open('input-12.txt') as file:
         puzzle = [line.strip() for line in file.readlines()]
         p = PassagePathing(puzzle)
         print(p.solve())
