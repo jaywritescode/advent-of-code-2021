@@ -1,4 +1,5 @@
 from collections import namedtuple
+from itertools import product
 
 Coordinate = namedtuple('Coordinate', ['row', 'column'])
 
@@ -71,11 +72,26 @@ class Chiton:
 if __name__ == '__main__':
     chiton = Chiton()
 
-    with open('sample-data/sample-15.txt') as file:
+    with open('input-15.txt') as file:
         for row, line in enumerate(file):
             for column, value in enumerate(iter(line.strip())):
                 chiton.create_node(Coordinate(row, column), int(value))
 
+        # part two
+        rows = row + 1
+        cols = column + 1
+        initial_nodes = list(chiton.nodes.values())
+        for (dr, dc) in product(range(5), repeat=2):
+            if dr == 0 and dc == 0:
+                continue
+            
+            for node in initial_nodes:
+                coord = Coordinate(dr * rows + node.name.row, dc * cols + node.name.column)
+                new_value = node.value + dr + dc
+                if new_value >= 10:
+                    new_value += 1
+                    new_value %= 10
+
+                chiton.create_node(coord, new_value)
+            
         print(chiton.solve())
-
-
