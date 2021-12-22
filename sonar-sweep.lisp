@@ -1,16 +1,23 @@
 ;;; part one
-(defun sonar-sweep (input)
+(defun solve-part-one (input)
   (count t (map 'list #'< input (rest input))))
 
 ;;; part two
 (defun triples (seq)
   (map 'list #'list seq (cdr seq) (cddr seq)))
 
-(defun sonar-sweep-2 (input)
-  ;; Is there a simpler way to write this mapcar?
-  (let ((window-sums (mapcar #'(lambda (tuple) (reduce #'+ tuple)) (triples input))))
+(defun solve-part-two (input)
+  (let ((window-sums (mapcar
+                      (alexandria:curry #'reduce #'+)
+                      (triples input))))
     (count t (map 'list #'< window-sums (rest window-sums)))))
 
-;;; good to remember
-(defvar puzzle-input
-  (mapcar #'parse-integer (uiop:read-file-lines "input-01.txt")))
+;;; read and parse problem input
+
+(defun parse-line (line) (parse-integer line))
+
+(defun sonar-sweep (filename &optional solve-part-one)
+  (let ((puzzle-input (mapcar #'parse-line (uiop:read-file-lines filename))))
+    (if solve-part-one
+        (solve-part-one puzzle-input)
+        (solve-part-two puzzle-input))))
