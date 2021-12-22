@@ -1,6 +1,5 @@
-#%%
 from more_itertools import partition
-#%%
+
 
 class BinaryDiagnostics:
     def __init__(self, report):
@@ -64,7 +63,6 @@ class BinaryDiagnostics:
         return o2 * co2
 
 
-# %%
 if __name__ == '__main__':
     with open('input-03.txt') as file:
         b = BinaryDiagnostics(file.readlines())
