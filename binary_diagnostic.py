@@ -1,7 +1,7 @@
 from more_itertools import partition
 
 
-class BinaryDiagnostics:
+class BinaryDiagnostic:
     def __init__(self, report):
         self.report = [line.strip() for line in report]
         self.num_bits = len(self.report[0])
@@ -65,5 +65,5 @@ class BinaryDiagnostics:
 
 if __name__ == '__main__':
     with open('input-03.txt') as file:
-        b = BinaryDiagnostics(file.readlines())
+        b = BinaryDiagnostic(file.readlines())
         print(b.life_support_rating())
