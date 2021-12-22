@@ -1,10 +1,10 @@
-#%%
 from collections import namedtuple
 from more_itertools import take
-from more_itertools.more import chunked, peekable, spy
+from more_itertools.more import chunked, peekable
 
 
 Packet = namedtuple('Packet', ['version', 'type_id', 'payload'])
+
 
 def hex2bin(bits: str) -> str:
     return ''.join("{:04b}".format(int(c, base=16)) for c in bits)
@@ -14,9 +14,31 @@ def bits2dec(iterable):
 
 
 def to_packets(hex):
-    b = hex2bin(hex)
-    i = iter(b)
-    return parse_next_packet(i)
+    return parse_next_packet(iter(hex2bin(hex)))
+
+def resolve(packet):
+    type_id = packet.type_id
+    if type_id == 4:
+        return packet.payload
+    elif type_id == 0:
+        return sum(resolve(p) for p in packet.payload)
+    elif type_id == 1:
+        i = 1
+        for p in packet.payload:
+            i *= resolve(p)
+        return i
+    elif type_id == 2:
+        return min(resolve(p) for p in packet.payload)
+    elif type_id == 3:
+        return max(resolve(p) for p in packet.payload)
+    elif type_id == 5:
+        return 1 if resolve(packet.payload[0]) > resolve(packet.payload[1]) else 0
+    elif type_id == 6:
+        return 1 if resolve(packet.payload[0]) < resolve(packet.payload[1]) else 0
+    elif type_id == 7:
+        return 1 if resolve(packet.payload[0]) == resolve(packet.payload[1]) else 0
+    else:
+        raise
 
 def parse_next_packet(bitstream):
     version = bits2dec(take(3, bitstream))
@@ -27,7 +49,7 @@ def parse_next_packet(bitstream):
     else:
         payload = parse_operator_packet(bitstream)
 
-    return Packet(version, type_id, payload)    
+    return Packet(version, type_id, payload)
 
 def parse_literal_value(bitstream):
     binary_value = []
@@ -70,10 +92,9 @@ def version_sum(root_packet):
     
 def solve(puzzle):
     packet = to_packets(puzzle)
-    return version_sum(packet)
-
+    return resolve(packet)
 
 
 if __name__ == '__main__':
     with open('input-16.txt') as file:
-        print(solve(file.readline()))
+        print(solve(file.readline().strip()))
