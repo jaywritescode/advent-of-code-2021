@@ -7,10 +7,7 @@ from more_itertools.more import chunked, peekable, spy
 Packet = namedtuple('Packet', ['version', 'type_id', 'payload'])
 
 def hex2bin(bits: str) -> str:
-    repr = bin(int(bits, base=16))[2:]
-    while len(repr) % 4 != 0:
-        repr = '0' + repr
-    return repr
+    return ''.join("{:04b}".format(int(c, base=16)) for c in bits)
 
 def bits2dec(iterable):
     return int(''.join(iterable), base=2)
