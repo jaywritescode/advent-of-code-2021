@@ -50,6 +50,7 @@ class BinaryDiagnostic:
             if len(rows) == 1:
                 return one(rows)
 
+    # The main method for part two.
     def life_support_rating(self):
         return self.oxygen_generator_rating() * self.co2_scrubber_rating()
 
