@@ -1,5 +1,5 @@
 from more_itertools import partition
-from more_itertools.more import one, spy
+from more_itertools.more import one
 
 def down_to_zero(n):
     """
