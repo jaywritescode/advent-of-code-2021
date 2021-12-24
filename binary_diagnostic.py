@@ -7,7 +7,6 @@ class BinaryDiagnostic:
         self.num_bits = len(puzzle[0])
 
     def gamma_rate_nth_bit(self, n):
-        # Note: (x & (1 << n)) == 0 iff the nth bit of x == 0.
         ones_count = len(list(filter(lambda i: (i & (1 << n)) > 0, self.report)))
         return 1 if ones_count > len(self.report) // 2 else 0
 
@@ -17,8 +16,10 @@ class BinaryDiagnostic:
             rate += (self.gamma_rate_nth_bit(i) << i)
         return rate
 
-    def solve_part_one(self):
+    # The main method for part one.
+    def power_consumption(self):
         gamma_rate = self.gamma_rate()
+        # Note that the epsilon rate is the same as the gamma rate with all its bits flipped.
         epsilon_rate = gamma_rate ^ ((1 << self.num_bits) - 1)
         return gamma_rate * epsilon_rate
 
@@ -34,27 +35,6 @@ class BinaryDiagnostic_1:
             zeroes, ones = partition(lambda row: row[i] == '1', self.report)
             self.partitions[i] = (tuple(zeroes), tuple(ones))
         return self.partitions[i]
-
-    def most_common_nth_bit(self, n):
-        zeroes, ones = self.partition_report_by_index(n)
-        return 0 if len(list(zeroes)) > len(list(ones)) else 1
-
-    def least_common_nth_bit(self, n):
-        zeroes, ones = self.partition_report_by_index(n)
-        return 0 if len(list(zeroes)) < len(list(ones)) else 1
-
-    def gamma_rate(self):
-        result = ''.join(
-            [str(self.most_common_nth_bit(i)) for i in range(self.num_bits)])
-        return int(result, base=2)
-
-    def epsilon_rate(self):
-        result = ''.join(
-            [str(self.least_common_nth_bit(i)) for i in range(self.num_bits)])
-        return int(result, base=2)
-
-    def power_consumption(self):
-        return self.gamma_rate() * self.epsilon_rate()
 
     def oxygen_generator_rating(self):
         rows = self.report
