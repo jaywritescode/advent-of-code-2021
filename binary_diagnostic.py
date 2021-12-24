@@ -66,6 +66,7 @@ class BinaryDiagnostic_1:
 
 
 if __name__ == '__main__':
-    with open('input-03.txt') as file:
-        b = BinaryDiagnostic(file.readlines())
+    with open('sample-data/03.txt') as file:
+        b = BinaryDiagnostic([line.strip() for line in file.readlines()])
+        print(b.power_consumption())
         print(b.life_support_rating())
