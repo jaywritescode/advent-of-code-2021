@@ -1,4 +1,11 @@
 from more_itertools import partition
+from more_itertools.more import one, spy
+
+def down_to_zero(n):
+    """
+    Returns an iterator over positive integers that yields n - 1, n - 2, ..., 0
+    """
+    return range(n - 1, -1, -1)
 
 
 class BinaryDiagnostic:
@@ -23,50 +30,32 @@ class BinaryDiagnostic:
         epsilon_rate = gamma_rate ^ ((1 << self.num_bits) - 1)
         return gamma_rate * epsilon_rate
 
-
-class BinaryDiagnostic_1:
-    def __init__(self, report):
-        self.report = [line.strip() for line in report]
-        self.num_bits = len(self.report[0])
-        self.partitions = dict()
-
-    def partition_report_by_index(self, i):
-        if i not in self.partitions:
-            zeroes, ones = partition(lambda row: row[i] == '1', self.report)
-            self.partitions[i] = (tuple(zeroes), tuple(ones))
-        return self.partitions[i]
-
     def oxygen_generator_rating(self):
         rows = self.report
-        
-        for idx in range(self.num_bits):
-            if len(rows) == 1:
-                return rows[0]
-
-            zeroes, ones = [list(x) for x in partition(lambda row: row[idx] == '1', rows)]
+        for idx in down_to_zero(self.num_bits):
+            mask = 1 << idx
+            zeroes, ones = [list(x) for x in partition(lambda val: (val & mask) > 0, rows)]
             rows = ones if len(ones) >= len(zeroes) else zeroes
-        return rows[0]
+
+            if len(rows) == 1:
+                return one(rows)
 
     def co2_scrubber_rating(self):
         rows = self.report
-
-        for idx in range(self.num_bits):
-            if len(rows) == 1:
-                return rows[0]
-
-            zeroes, ones = [list(x) for x in partition(lambda row: row[idx] == '1', rows)]
+        for idx in down_to_zero(self.num_bits):
+            mask = 1 << idx
+            zeroes, ones = [list(x) for x in partition(lambda val: (val & mask) > 0, rows)]
             rows = zeroes if len(zeroes) <= len(ones) else ones
-        return rows[0]
+
+            if len(rows) == 1:
+                return one(rows)
 
     def life_support_rating(self):
-        o2 = int(self.oxygen_generator_rating(), base=2)
-        co2 = int(self.co2_scrubber_rating(), base=2)
-
-        return o2 * co2
+        return self.oxygen_generator_rating() * self.co2_scrubber_rating()
 
 
 if __name__ == '__main__':
-    with open('sample-data/03.txt') as file:
+    with open('input-03.txt') as file:
         b = BinaryDiagnostic([line.strip() for line in file.readlines()])
         print(b.power_consumption())
         print(b.life_support_rating())
