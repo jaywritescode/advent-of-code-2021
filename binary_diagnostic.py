@@ -2,6 +2,28 @@ from more_itertools import partition
 
 
 class BinaryDiagnostic:
+    def __init__(self, puzzle):
+        self.report = [int(line.strip(), base=2) for line in puzzle]
+        self.num_bits = len(puzzle[0])
+
+    def gamma_rate_nth_bit(self, n):
+        # Note: (x & (1 << n)) == 0 iff the nth bit of x == 0.
+        ones_count = len(list(filter(lambda i: (i & (1 << n)) > 0, self.report)))
+        return 1 if ones_count > len(self.report) // 2 else 0
+
+    def gamma_rate(self):
+        rate = 0
+        for i in range(self.num_bits):
+            rate += (self.gamma_rate_nth_bit(i) << i)
+        return rate
+
+    def solve_part_one(self):
+        gamma_rate = self.gamma_rate()
+        epsilon_rate = gamma_rate ^ ((1 << self.num_bits) - 1)
+        return gamma_rate * epsilon_rate
+
+
+class BinaryDiagnostic_1:
     def __init__(self, report):
         self.report = [line.strip() for line in report]
         self.num_bits = len(self.report[0])
