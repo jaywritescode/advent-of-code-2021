@@ -34,9 +34,19 @@
         (serapeum:partition #'(lambda (n) (= 1 (get-nth-bit i n))) result)
       (setf result (if (>= (length ones) (length zeroes)) ones zeroes)))))
 
-(defun binary-diagnostic (filename)
+(defun co2-scrubber-rating (puzzle-input)
+  (do ((result puzzle-input)
+       (i (1- (num-bits puzzle-input)) (1- i)))
+      ((= 1 (length result)) (first result))
+    (multiple-value-bind (ones zeroes)
+        (serapeum:partition #'(lambda (n) (= 1 (get-nth-bit i n))) result)
+      (setf result (if (<= (length zeroes) (length ones)) zeroes ones)))))
+
 ;;; parse problem statement
 (defun parse-line (line) (read-from-string (str:concat "#B" line)))
 
+(defun binary-diagnostic (filename &optional solve-part-one)
   (let ((puzzle-input (mapcar #'parse-line (uiop:read-file-lines filename))))
-    (solve-part-one puzzle-input)))
+    (if solve-part-one
+        (solve-part-one puzzle-input)
+        (solve-part-two puzzle-input))))
