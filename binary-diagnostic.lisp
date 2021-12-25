@@ -23,8 +23,16 @@
     (dotimes (i (num-bits puzzle-input) result)
       (incf result (ash (gamma-rate-nth-bit puzzle-input i) i)))))
 
-;;; parse problem statement
-(defun parse-line (line) (read-from-string (str:concat "#B" line)))
+(defun solve-part-two (puzzle-input)
+  (* (oxygen-generator-rating puzzle-input) (co2-scrubber-rating puzzle-input)))
+
+(defun oxygen-generator-rating (puzzle-input)
+  (do ((result puzzle-input)
+       (i (1- (num-bits puzzle-input)) (1- i)))
+      ((= 1 (length result)) (first result))
+    (multiple-value-bind (ones zeroes)
+        (serapeum:partition #'(lambda (n) (= 1 (get-nth-bit i n))) result)
+      (setf result (if (>= (length ones) (length zeroes)) ones zeroes)))))
 
 (defun binary-diagnostic (filename)
   (let ((puzzle-input (mapcar #'parse-line (uiop:read-file-lines filename))))
