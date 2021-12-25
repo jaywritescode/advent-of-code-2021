@@ -35,5 +35,8 @@
       (setf result (if (>= (length ones) (length zeroes)) ones zeroes)))))
 
 (defun binary-diagnostic (filename)
+;;; parse problem statement
+(defun parse-line (line) (read-from-string (str:concat "#B" line)))
+
   (let ((puzzle-input (mapcar #'parse-line (uiop:read-file-lines filename))))
     (solve-part-one puzzle-input)))
