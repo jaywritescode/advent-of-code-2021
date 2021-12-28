@@ -27,3 +27,7 @@ input-*.txt
 
 # Common Lisp
 *.fasl
+
+# Jupyter
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
