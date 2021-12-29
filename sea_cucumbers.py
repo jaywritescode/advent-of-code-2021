@@ -1,5 +1,4 @@
 from collections import namedtuple
-from itertools import filterfalse
 
 Coordinate = namedtuple('Coordinate', ['row', 'col'])
 
