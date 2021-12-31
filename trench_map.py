@@ -2,17 +2,15 @@ from collections import namedtuple
 from itertools import product
 
 LIGHT = '#'
+DARK = '.'
 
 Coordinate = namedtuple('Coordinates', ['row', 'col'])
-BaseImage = namedtuple('Image', ['light_pixels', 'size', 'background', 'times_enhanced'], defaults=[0])
+BaseImage = namedtuple('Image', ['light_pixels', 'size', 'background'])
 
 class Image(BaseImage):
     def get_value(self, coordinate):
-        min = -self.times_enhanced
-        max = self.size + self.times_enhanced
-
-        if min <= coordinate.row < max and min <= coordinate.col < max:
-            return 1 if coordinate in self.light_pixels else 0
+        if self.is_in_image(coordinate):
+            return int(coordinate in self.light_pixels)
 
         return self.background
 
@@ -26,13 +24,25 @@ class Image(BaseImage):
         
         return value
 
+    def is_in_image(self, coordinate):
+        return 0 <= coordinate.row < self.size and 0 <= coordinate.col < self.size
+
+    def background_color(self):
+        return LIGHT if self.background else DARK
+
     def __repr__(self):
         lines = []
-        for row in range(-self.times_enhanced - 1, self.size):
+        for row in range(-1, self.size + 1):
             line = []
-            for col in range(-self.times_enhanced - 1, self.size):
+            for col in range(-1, self.size + 1):
                 coord = Coordinate(row, col)
-                line.append('#' if coord in self.light_pixels else '.')
+
+                if not self.is_in_image(coord):
+                    line.append(self.background_color())
+                elif coord in self.light_pixels:
+                    line.append(LIGHT)
+                else:
+                    line.append(DARK)
             lines.append(''.join(line))
         return '\n'.join(lines)
 
@@ -43,17 +53,16 @@ class TrenchMap:
 
     def enhance_once(self, image):
         new_light_pixels = set()
-        for row in range(image.times_enhanced - 1, image.size + 2):
-            for col in range(image.times_enhanced - 1, image.size + 2):
+        for row in range(-1, image.size + 2):
+            for col in range(-1, image.size + 2):
                 coord = Coordinate(row, col)
-                
+
                 idx = image.enhance_coordinate_index(coord)
                 if self.algorithm[idx]:
-                    new_light_pixels.add(coord)
+                    new_light_pixels.add(Coordinate(coord.row + 1, coord.col + 1))
 
-        return Image(new_light_pixels, image.size + 2, 
-            background=self.algorithm[0],
-            times_enhanced=image.times_enhanced + 1)
+        new_background = self.algorithm[-1] if image.background else self.algorithm[0]
+        return Image(new_light_pixels, image.size + 2, background=new_background)
 
 
 def parse_algorithm(line):
@@ -72,13 +81,13 @@ def parse_image(lines):
 
 
 if __name__ == '__main__':
-    with open('sample-data/20.txt') as file:
+    with open('input-20.txt') as file:
         puzzle_input = [line.strip() for line in file.readlines()]
         algorithm = parse_algorithm(puzzle_input[0])
         image = parse_image(puzzle_input[2:])
 
         trench_map = TrenchMap(algorithm)
-        enhanced = trench_map.enhance_once(image)
+        for i in range(50):
+            image = trench_map.enhance_once(image)
 
-        print(enhanced)
-
+        print(len(image.light_pixels))
