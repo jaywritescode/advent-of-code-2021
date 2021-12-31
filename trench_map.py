@@ -87,7 +87,7 @@ if __name__ == '__main__':
         image = parse_image(puzzle_input[2:])
 
         trench_map = TrenchMap(algorithm)
-        enhanced = trench_map.enhance_once(image)
-        enhanced = trench_map.enhance_once(enhanced)
+        for i in range(50):
+            image = trench_map.enhance_once(image)
 
-        print(len(enhanced.light_pixels))
+        print(len(image.light_pixels))
