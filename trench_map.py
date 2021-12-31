@@ -5,7 +5,7 @@ LIGHT = '#'
 DARK = '.'
 
 Coordinate = namedtuple('Coordinates', ['row', 'col'])
-BaseImage = namedtuple('Image', ['light_pixels', 'size', 'background', 'times_enhanced'], defaults=[0])
+BaseImage = namedtuple('Image', ['light_pixels', 'size', 'background'])
 
 class Image(BaseImage):
     def get_value(self, coordinate):
@@ -32,9 +32,9 @@ class Image(BaseImage):
 
     def __repr__(self):
         lines = []
-        for row in range(-self.times_enhanced - 1, self.size):
+        for row in range(-1, self.size + 1):
             line = []
-            for col in range(-self.times_enhanced - 1, self.size):
+            for col in range(-1, self.size + 1):
                 coord = Coordinate(row, col)
 
                 if not self.is_in_image(coord):
@@ -53,17 +53,16 @@ class TrenchMap:
 
     def enhance_once(self, image):
         new_light_pixels = set()
-        for row in range(image.times_enhanced - 1, image.size + 2):
-            for col in range(image.times_enhanced - 1, image.size + 2):
+        for row in range(-1, image.size + 2):
+            for col in range(-1, image.size + 2):
                 coord = Coordinate(row, col)
-                
+
                 idx = image.enhance_coordinate_index(coord)
                 if self.algorithm[idx]:
-                    new_light_pixels.add(coord)
+                    new_light_pixels.add(Coordinate(coord.row + 1, coord.col + 1))
 
-        return Image(new_light_pixels, image.size + 2, 
-            background=self.algorithm[0],
-            times_enhanced=image.times_enhanced + 1)
+        new_background = self.algorithm[-1] if image.background else self.algorithm[0]
+        return Image(new_light_pixels, image.size + 2, background=new_background)
 
 
 def parse_algorithm(line):
@@ -89,5 +88,6 @@ if __name__ == '__main__':
 
         trench_map = TrenchMap(algorithm)
         enhanced = trench_map.enhance_once(image)
+        enhanced = trench_map.enhance_once(enhanced)
 
-        print(enhanced)
+        print(len(enhanced.light_pixels))
