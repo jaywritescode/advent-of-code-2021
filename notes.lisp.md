@@ -4,6 +4,13 @@ Common Lisp notes
 A template for arranging these scripts:
 
 ``` common-lisp
+;;; load dependencies
+(eval-when (:compile-toplevel :load-toplevel :execute)
+    (ql:quickload "alexandria")
+    (ql:quickload "serapeum")
+    ;; etc... each call to ql:quickload can only load one dependency
+    )
+
 ;;; part one
 (defun solve-part-one (puzzle-input)
     "driver function for part one of the problem"
