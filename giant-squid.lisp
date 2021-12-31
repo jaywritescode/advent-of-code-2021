@@ -21,6 +21,24 @@
         (alexandria:when-let ((winner (find-if #'winning-board-p boards)))
           (return (* i (reduce #'+ (all-not-called winner)))))))))
 
+(defun solve (bingo-balls boards &optional solve-part-one)
+  (let ((numbers-called (make-hash-table)))
+    (flet ((winning-board-p (board)
+             (some #'(lambda (line)
+                       (every #'(lambda (number)
+                                  (gethash number numbers-called)) line))
+                   board))
+           (all-not-called (board)
+             (delete-if #'(lambda (number) (gethash number numbers-called))
+                        (remove-duplicates (apply #'append board)))))
+      (dolist (i bingo-balls)
+        (format t "~s~%" i)
+        (setf (gethash i numbers-called) t)
+        (alexandria:when-let ((winner (find-if #'winning-board-p boards)))
+          (if (or solve-part-one (every #'winning-board-p boards))
+              (return (* i (reduce #'+ (all-not-called winner))))
+              (setf boards (remove winner boards))))))))
+
 ;;; parse problem statement
 
 (defun parse-board-line (line)
@@ -41,6 +59,6 @@
 (defun parse-puzzle (lines)
   (values (parse-numbers (first lines)) (parse-boards (cddr lines))))
 
-(defun giant-squid (filename)
-  (multiple-value-call #'solve-part-one
-    (parse-puzzle (uiop:read-file-lines filename))))
+(defun giant-squid (filename &optional solve-part-one)
+  (multiple-value-call #'solve
+    (parse-puzzle (uiop:read-file-lines filename)) solve-part-one))
