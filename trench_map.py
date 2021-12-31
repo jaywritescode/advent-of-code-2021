@@ -25,7 +25,7 @@ class Image(BaseImage):
         return value
 
     def is_in_image(self, coordinate):
-        return -self.times_enhanced <= coordinate.row < self.size + self.times_enhanced and -self.times_enhanced <= coordinate.col < self.size + self.times_enhanced
+        return 0 <= coordinate.row < self.size and 0 <= coordinate.col < self.size
 
     def background_color(self):
         return LIGHT if self.background else DARK
