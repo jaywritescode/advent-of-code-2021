@@ -2,17 +2,15 @@ from collections import namedtuple
 from itertools import product
 
 LIGHT = '#'
+DARK = '.'
 
 Coordinate = namedtuple('Coordinates', ['row', 'col'])
 BaseImage = namedtuple('Image', ['light_pixels', 'size', 'background', 'times_enhanced'], defaults=[0])
 
 class Image(BaseImage):
     def get_value(self, coordinate):
-        min = -self.times_enhanced
-        max = self.size + self.times_enhanced
-
-        if min <= coordinate.row < max and min <= coordinate.col < max:
-            return 1 if coordinate in self.light_pixels else 0
+        if self.is_in_image(coordinate):
+            return int(coordinate in self.light_pixels)
 
         return self.background
 
@@ -26,13 +24,25 @@ class Image(BaseImage):
         
         return value
 
+    def is_in_image(self, coordinate):
+        return -self.times_enhanced <= coordinate.row < self.size + self.times_enhanced and -self.times_enhanced <= coordinate.col < self.size + self.times_enhanced
+
+    def background_color(self):
+        return LIGHT if self.background else DARK
+
     def __repr__(self):
         lines = []
         for row in range(-self.times_enhanced - 1, self.size):
             line = []
             for col in range(-self.times_enhanced - 1, self.size):
                 coord = Coordinate(row, col)
-                line.append('#' if coord in self.light_pixels else '.')
+
+                if not self.is_in_image(coord):
+                    line.append(self.background_color())
+                elif coord in self.light_pixels:
+                    line.append(LIGHT)
+                else:
+                    line.append(DARK)
             lines.append(''.join(line))
         return '\n'.join(lines)
 
@@ -72,7 +82,7 @@ def parse_image(lines):
 
 
 if __name__ == '__main__':
-    with open('sample-data/20.txt') as file:
+    with open('input-20.txt') as file:
         puzzle_input = [line.strip() for line in file.readlines()]
         algorithm = parse_algorithm(puzzle_input[0])
         image = parse_image(puzzle_input[2:])
@@ -81,4 +91,3 @@ if __name__ == '__main__':
         enhanced = trench_map.enhance_once(image)
 
         print(enhanced)
-
